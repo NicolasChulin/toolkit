@@ -34,7 +34,7 @@ def sent_email():
 
     elen = len(elist)
     limits = [x for x in range(0,len+1,100)]
-    if elen//100:
+    if elen%100:
         limits.append(elen)
 
     ll = len(limits)
