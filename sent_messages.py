@@ -3,7 +3,7 @@ from dblink import Pydb
 from random import randint
 from datetime import datetime
 import hashlib
-import requests, json
+import requests, json,math
 import logging
 logging.basicConfig(level=logging.DEBUG,
     format='%(asctime)s %(filename)s %(levelname)s %(message)s',
@@ -72,20 +72,21 @@ def send_phone_message(mobile):
 
 def sent_messages():
     # mobile = '18566268446'
-    # message = '这是一条营销短信，可以访问百度http://www.baidu.com'
-    # send_phone_message(mobile,message)
+    # send_phone_message(mobile)
 
     table = 'inla'
+    ppnum = 100
+
     pydb = Pydb()
-    sql = "SELECT phone FROM %s WHERE phone<>'' ORDER BY id ASC LIMIT %s" % (table,limit)
-    emails = pydb.query(sql)
-    elist = []
-    for e in emails:
-        if ';' in e:
-            es = e.split(';')
-            elist.extend(es)
-        else:
-            elist.append(e)
+    num = pydb.get_count(table)
+    allpage = math.ceil(num['num']/ppnum)
+    for n in range(allpage):
+        limit = get_limit(allpage,n+1,ppnum)
+        sql = "SELECT phone FROM %s ORDER BY id ASC LIMIT %s" % (table,limit)
+        phones = pydb.query(sql)
+        for phone in phones:
+            send_phone_message(phone['phone'])
+
 
 
 if __name__ == '__main__':
